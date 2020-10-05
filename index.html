@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.css">
     <style>
         .jumbotron{
-            width: 400px;
+            width: 600px;
             text-align: center;
             margin-top: 20px;
             margin-left: auto;
@@ -29,11 +29,12 @@
         angular.module("listaTelefonica").controller("listaTelefonicaCtrl",function($scope){
             $scope.app = "Lista Telefonica";
             $scope.contatos = [
-                {nome: "Pedro" , telefone: "99999998" , cor:"red"},
-                {nome: "Ana" , telefone: "99999992" , cor: "yellow"},
-                {nome: "Maria" , telefone: "99996543", cor:"blue"}
+                {nome: "Pedro", telefone: "9999-8888", data: new Date(), operadora: {nome: "Oi", codigo: 14, categoria: "Celular"}},
+				{nome: "Ana", telefone: "9999-8877", data: new Date(), operadora: {nome: "Vivo", codigo: 15, categoria: "Celular"}},
+				{nome: "Maria", telefone: "9999-8866", data: new Date(), operadora: {nome: "Tim", codigo: 41, categoria: "Celular"}}
             ];
             $scope.adicionarContato = function(contato){
+                contato.data = new Date();
                 $scope.contatos.push(angular.copy(contato));
                 delete $scope.contato;
                 $scope.contatoForm.$setPristine();
@@ -54,6 +55,10 @@
                 return contatos.some(function(contato){
                     return contato.selecionado 
                 })
+            };
+            $scope.ordenarPor = function(campo){
+                $scope.criterioDeOrdenacao = campo;
+                $scope.direcaoDeOrdenacao = !$scope.direcaoDeOrdenacao;
             }
         });
     </script>
@@ -61,22 +66,22 @@
 <body ng-controller="listaTelefonicaCtrl">
     <div class="jumbotron">
         <h3>{{app}}</h3>
-        <table ng-show="contatos.length > 0" class="table">
+        <input class="form-control" type="text" placeholder="O que você está buscando?" ng-model="criterioDeBusca"/>
+        <table ng-show="contatos.length > 0" class="table table-striped">
             <tr>
                 <th></th>
-                <th>Nome</th>
-                <th>Telefone</th>
+                <th><a href="" ng-click="ordenarPor('nome')">Nome</a></th>
+                <th><a href="" ng-click="ordenarPor('telefone')">Telefone</a></th>
                 <th>Operadora</th>
-                <th></th>
+                <th>Data</th>
             </tr>
-            <tr ng-class="{selecionado: contato.selecionado}" ng-repeat="contato in contatos">
+            <tr ng-class="{selecionado: contato.selecionado}" ng-repeat="contato in contatos | filter: criterioDeBusca | orderBy:criterioDeOrdenacao : direcaoDeOrdenacao">
                 <td><input type="checkbox" ng-model="contato.selecionado"></td>
-                <td>{{contato.nome}}</td>
+                <td>{{contato.nome | uppercase}}</td>
                 <td>{{contato.telefone}}</td>
-                <td>{{contato.operadora.nome}}</td>
-                <td>
-                    <div style="width: 20px; height: 20px;" ng-style="{'background-color' : contato.cor}"></div>
-                </td>
+                <td>{{contato.operadora.nome | lowercase}}</td>
+                <td>{{contato.data | date:'dd/MM/yyyy HH:mm'}}</td>
+                <!--<td><div style="width: 20px; height: 20px;" ng-style="{'background-color' : contato.cor}"></div></td>-->
             </tr>
         </table>
         <hr />
